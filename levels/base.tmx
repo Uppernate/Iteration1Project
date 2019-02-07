@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="16" height="16" tilewidth="16" tileheight="16" infinite="0" nextobjectid="1">
+ <tileset firstgid="1" name="floor" tilewidth="16" tileheight="16" spacing="2" margin="1" tilecount="16" columns="4">
+  <image source="../img/floor.png" width="72" height="72"/>
+  <tile id="0" type="floor"/>
+  <tile id="1" type="floor"/>
+  <tile id="2" type="floor"/>
+  <tile id="3" type="floor"/>
+  <tile id="4" type="floor"/>
+  <tile id="5" type="floor"/>
+  <tile id="6" type="floor"/>
+  <tile id="7" type="floor"/>
+  <tile id="8" type="floor"/>
+  <tile id="9" type="floor"/>
+  <tile id="10" type="floor"/>
+  <tile id="11" type="floor"/>
+  <tile id="12" type="floor"/>
+  <tile id="13" type="floor"/>
+  <tile id="14" type="floor"/>
+  <tile id="15" type="floor"/>
+ </tileset>
+ <layer name="main" width="16" height="16">
+  <data encoding="csv">
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+</data>
+ </layer>
+</map>
