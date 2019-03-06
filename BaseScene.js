@@ -4,86 +4,43 @@ class BaseScene extends Phaser.Scene {
         super(id);
         this.id = id;
         this.level = new LevelLoader(this);
-        this.collision = new CollisionHandler(this);
+        this.tileManager = new TileManager(this);
+        this.turnSystem;
+        this.playfield;
     }
     preload() {
         this.level.key = 'level';
         this.level.source = 'levels/level1.json';
-        this.level.newTileset('floor', 'img/floor.png');
-        this.level.newDynamicLayer('main', ['floor']);
+        this.level.newTileset('main', 'img/tiles.png');
+        this.level.newDynamicLayer('main', ['main']);
+        this.level.newDynamicLayer('wall', ['main']);
+        this.level.newDynamicLayer('deco', ['main']);
+        this.load.image('brick-main', 'img/brick-main.png');
+        this.load.image('brick-left', 'img/brick-left.png');
+        this.load.image('brick-right', 'img/brick-right.png');
     }
     create() {
         this.level.make();
-        this.level.layerToMatter('main');
 
         // Randomise floor tiles
-        for (let x = 0; x < this.map.width; x++) {
-            for (let y = 0; y < this.map.width; y++) {
-                let tile = this.level.layers[0].obj.getTileAt(x, y);
-                if (typeof tile.randomised == 'undefined') {
-                    let type = Math.floor(1 + Math.random() * 11);
-                    if (type < 9) {
-                        tile.index = type;
-                        tile.randomised = true;
-                    }
-                    else if (type == 10) {
-                        let tiles = [
-                            this.level.layers[0].obj.getTileAt(x + 1, y),
-                            this.level.layers[0].obj.getTileAt(x, y + 1),
-                            this.level.layers[0].obj.getTileAt(x + 1, y + 1)
-                        ];
-                        if (tiles[0] && tiles[1] && tiles[2] &&
-                            !tiles[0].randomised && !tiles[1].randomised && !tiles[2].randomised) {
-                            tile.index = 9;
-                            tiles[0].index = 10;
-                            tiles[1].index = 13;
-                            tiles[2].index = 14;
-                            tile.randomised = true;
-                            tiles[0].randomised = true;
-                            tiles[1].randomised = true;
-                            tiles[2].randomised = true;
-                        }
-                    }
-                    else if (type == 11) {
-                        let tiles = [
-                            this.level.layers[0].obj.getTileAt(x + 1, y),
-                            this.level.layers[0].obj.getTileAt(x, y + 1),
-                            this.level.layers[0].obj.getTileAt(x + 1, y + 1)
-                        ];
-                        if (tiles[0] && tiles[1] && tiles[2] &&
-                            !tiles[0].randomised && !tiles[1].randomised && !tiles[2].randomised) {
-                            tile.index = 11;
-                            tiles[0].index = 12;
-                            tiles[1].index = 15;
-                            tiles[2].index = 16;
-                            tile.randomised = true;
-                            tiles[0].randomised = true;
-                            tiles[1].randomised = true;
-                            tiles[2].randomised = true;
-                        }
-                    }
-                }
+
+        this.tileManager.everyTile(this.level.layer('main'), function (tile, x, y) {
+            if (tile.propdata.type == "floor") {
+                tile.index = Math.floor(1 + Math.random() * 4);
             }
-        }
+        }, this);
 
-        /*this.map.filterObjects('objects', function (object) {
-            switch (object.type) {
-                case 'coin':
-                    new Coin(this, object.x, object.y);
-                    break;
+        this.tileManager.everyTile(this.level.layer('wall'), function (tile, x, y) {
+            if (tile.propdata.type == "wall") {
+                tile.index = Math.floor(9 + Math.random() * 4);
             }
-        }, this);*/
+        }, this);
 
-        //this.player = new Player(this, this.map.widthInPixels / 2, this.map.heightInPixels / 2);
-        //this.cameras.main.startFollow(this.player.sprite, false, 0.5, 0.5);
-
-        // Collisions
-        this.collision.register('player', 'coin', function (player, coin) {
-            coin.gameObject.parent.destroy();
-        });
-        this.collision.make();
+        this.tileManager.registerAll();
+        this.level.layer('deco').obj.setDepth(depthLookup.ceiling);
     }
     update(time, delta) {
         //this.player.update();
+        this.tileManager.refreshAllInQueue();
     }
 }

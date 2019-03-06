@@ -1,29 +1,14 @@
 var config = {
     type: Phaser.AUTO,
-    width: 64*8,
-    height: 64*12,
-    pixelArt: false,
+    width: 16*16,
+    height: 16*16,
+    pixelArt: true,
     input: {
         activePointers: 10
     },
 
     physics: {
-        default: 'matter',
-        matter: {
-            debug: false,
-            gravity: {
-                x: 0,
-                y: 0
-            }
-        }
-    },
-
-    plugins: {
-        scene: [{
-            plugin: PhaserMatterCollisionPlugin,
-            key: "matterCollision",
-            mapping: "matterCollision"
-        }]
+        default: 'arcade'
     },
 
     scene: [BaseScene],

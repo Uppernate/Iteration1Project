@@ -24,6 +24,9 @@ class LevelLoader {
     newDynamicLayer(name, tilesets) {
         this.layers.push({ name: name, type: 'dynamic', tilesets: tilesets });
     }
+    layer(name) {
+        return this.layers.find(function (l) { if (l.name == name) return true;});
+    }
     make() {
         this.scene.map = this.scene.make.tilemap({ key: this.key });
         for (let i = 0; i < this._tilesetsToMake.length; i++) {
@@ -49,7 +52,7 @@ class LevelLoader {
             }
         }
         this.scene.cameras.main.setBounds(0, 0, this.scene.map.widthInPixels, this.scene.map.heightInPixels);
-        this.scene.matter.world.setBounds(0, 0, this.scene.map.widthInPixels, this.scene.map.heightInPixels);
+        //this.scene.matter.world.setBounds(0, 0, this.scene.map.widthInPixels, this.scene.map.heightInPixels);
         return this.scene.map;
     }
     layerToMatter(name) {
