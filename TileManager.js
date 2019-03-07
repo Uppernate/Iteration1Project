@@ -24,19 +24,23 @@ class AutoTileData {
         this.neighbours = [];
         this.refreshData();
     }
+    // Incomplete: Changes tile from floor to wall and vice versa
     change(state) {
         // Make changes here
         this.queueNeighbours();
     }
+    // Queue this tile's neighbours for refreshing
     queueNeighbours() {
         this.parent.queueAutoTiles(this.neighbours);
     }
+    // Queue this tile for refreshing
     queue() {
         let queued = this.parent.autoTileQueue.find(function (a) { return a === this; }, this);
         if (!queued) {
             this.parent.autoTileQueue.push(this);
         }
     }
+    // Fetches information from Phaser's tiles into this one (such as their properties)
     refreshData() {
         this.info = {};
         if (this.tileFloor)
@@ -46,6 +50,8 @@ class AutoTileData {
         if (this.tileDeco)
             this.info.decoType = this.tileDeco.propdata.type;
     }
+    // The main function
+    // Determines which wall sprite, deco sprite and additionals to display so every tile looks connected
     refresh() {
         this.refreshData();
         // Clear previous sprites
@@ -105,15 +111,20 @@ class AutoTileData {
         }
             
     }
+    // Insert a sprite in tile position with a certain depth
     addSprite(name, depth) {
         this.parent.spawnSpriteTile(this.x, this.y, name, depth, this);
     }
+    // Changes the look of a tile from a particular layer
     changeLook(layername, index) {
         this.parent.spawnTile(this.x, this.y, this.parent.parent.level.layer(layername).obj, index);
     }
+    // Removes a tile from a particular layer
     removeLook(layername) {
         this.parent.parent.level.layer(layername).obj.removeTileAt(this.x, this.y);
     }
+    /// Matrix functions - Enables to quickly compare a pattern of tiles with property requirements/definitions
+    // Returns true if pattern was matched exactly, false if not
     exactCompare(matrix) {
         let result = true;
         let current = 0;
@@ -132,6 +143,7 @@ class AutoTileData {
         }
         return result;
     }
+    // Returns a new matrix with results for each value tested in the matrix given
     compare(matrix) {
         const newmatrix = [];
         let current = 0;
@@ -151,6 +163,7 @@ class AutoTileData {
         }
         return newmatrix;
     }
+    // Function used for testing one tile against one value from the matrix
     evaluateConditions(subject, conditions) {
         const info = subject.info;
         const entries = Object.entries(conditions);
@@ -176,8 +189,8 @@ class TileManager {
                 let tile = layer.obj.getTileAt(x, y); // Get tile data
                 if (tile) {
                     tile.propdata = {}; // Make space for properties
-                    let properties = tile.tileset.tileData[tile.index].properties; // Get properties of correct index
-                    properties.forEach(function (p) { tile.propdata[p.name] = p.value; }); // Insert properties into tile
+                    let properties = Object.entries(tile.tileset.tileProperties[tile.index]); // Get properties of correct index
+                    properties.forEach(function (p) { tile.propdata[p[0]] = p[1]; }); // Insert properties into tile
 
                     f.call(scope, tile, x, y); // Call user's callback function
                 }
@@ -195,15 +208,21 @@ class TileManager {
     // Create all autotiles for this level
     // Automatically sets up neighbours
     registerAll() {
+        // Fetch all important layers
         let layerFloor = this.parent.level.layer('main');
         let layerWall = this.parent.level.layer('wall');
         let layerDeco = this.parent.level.layer('deco');
+        // Loop through every floor tile (a floor tile must exist where there is gameplay)
         this.everyTile(layerFloor, function (tile, x, y) {
+            // Get the other tiles from the other layers
             let wallTile = layerWall.obj.getTileAt(x, y);
             let decoTile = layerDeco.obj.getTileAt(x, y);
+            // Make the AutoTileData instance, where it keeps all this information and more
             this.autoTileData.push(new AutoTileData(tile, wallTile, decoTile, x, y, this));
         }, this);
+        // Start registering every tile's neighbours
         this.registerNeighbours();
+        // Queue every tile for refreshing
         this.everyAutoTile(function (a) { a.queue();});
     }
     registerNeighbours() {

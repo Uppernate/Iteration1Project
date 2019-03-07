@@ -5,10 +5,12 @@ class BaseScene extends Phaser.Scene {
         this.id = id;
         this.level = new LevelLoader(this);
         this.tileManager = new TileManager(this);
-        this.turnSystem;
-        this.playfield;
+        this.turnSystem = new TurnSystem(this);
+        this.playfield = new Playfield(this);
+        this.camerafocus = new Vector2(8 * 32, 8 * 32);
     }
     preload() {
+        
         this.level.key = 'level';
         this.level.source = 'levels/level1.json';
         this.level.newTileset('main', 'img/tiles.png');
@@ -21,6 +23,7 @@ class BaseScene extends Phaser.Scene {
     }
     create() {
         this.level.make();
+        this.touchContext = new TouchContext(this);
 
         // Randomise floor tiles
 
@@ -38,9 +41,25 @@ class BaseScene extends Phaser.Scene {
 
         this.tileManager.registerAll();
         this.level.layer('deco').obj.setDepth(depthLookup.ceiling);
+
+        this.scale.on('resize', this.resize, this);
+        
+        const pixelSize = Math.ceil(Math.min(this.game.canvas.width / 480, this.game.canvas.height / 270)) * window.devicePixelRatio;
+        this.cameras.main.zoom = pixelSize;
     }
     update(time, delta) {
         //this.player.update();
+        this.touchContext.update();
         this.tileManager.refreshAllInQueue();
+        this.cameras.main.centerOn(Math.round(this.camerafocus.x), Math.round(this.camerafocus.y));
+    }
+    resize(gameSize, baseSize, displaySize, resolution) {
+        const width = displaySize.width;
+        const height = displaySize.height;
+
+        const pixelSize = Math.ceil(Math.min(width / 480, height / 270)) * window.devicePixelRatio;
+
+        this.cameras.resize(width, height);
+        this.cameras.main.zoom = pixelSize;
     }
 }

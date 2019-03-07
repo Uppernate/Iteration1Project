@@ -9,9 +9,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		index.html = index.html
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Classes", "Classes", "{5B8FE77E-A853-4531-9656-4DB7FA6BDDCB}"
+	ProjectSection(SolutionItems) = preProject
+		BaseScene.js = BaseScene.js
+		CollisionHandler.js = CollisionHandler.js
+		LevelLoader.js = LevelLoader.js
+		Playfield.js = Playfield.js
+		TileManager.js = TileManager.js
+		TouchContext.js = TouchContext.js
+		TurnSystem.js = TurnSystem.js
+		vector.js = vector.js
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5B8FE77E-A853-4531-9656-4DB7FA6BDDCB} = {ED7381B9-48BF-43B2-816E-8C92F3795373}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {29FF0AAD-4852-43DB-9474-3AB8660C6066}
