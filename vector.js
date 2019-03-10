@@ -165,6 +165,10 @@ class Vector2 {
                     this.updatedMagnitudeSqr = o1.updatedMagnitudeSqr;
                     return this;
                 }
+                else if (exists(o1.x) && exists(o1.y)) {
+                    this.x = o1.x;
+                    this.y = o1.y;
+                }
                 else if (typeof o1 === "number") {
                     this.x = o1;
                     this.y = o1;
@@ -184,6 +188,10 @@ class Vector2 {
             }
             else {
                 if (o1 instanceof Vector2) {
+                    this.x += o1.x;
+                    this.y += o1.y;
+                }
+                else if (exists(o1.x) && exists(o1.y)) {
                     this.x += o1.x;
                     this.y += o1.y;
                 }
@@ -209,6 +217,10 @@ class Vector2 {
                     this.x -= o1.x;
                     this.y -= o1.y;
                 }
+                else if (exists(o1.x) && exists(o1.y)) {
+                    this.x -= o1.x;
+                    this.y -= o1.y;
+                }
                 else if (typeof o1 === "number") {
                     this.x -= o1;
                     this.y -= o1;
@@ -231,6 +243,10 @@ class Vector2 {
                     this.x *= o1.x;
                     this.y *= o1.y;
                 }
+                else if (exists(o1.x) && exists(o1.y)) {
+                    this.x *= o1.x;
+                    this.y *= o1.y;
+                }
                 else if (typeof o1 === "number") {
                     this.x *= o1;
                     this.y *= o1;
@@ -250,6 +266,10 @@ class Vector2 {
             }
             else {
                 if (o1 instanceof Vector2) {
+                    this.x /= o1.x;
+                    this.y /= o1.y;
+                }
+                else if (exists(o1.x) && exists(o1.y)) {
                     this.x /= o1.x;
                     this.y /= o1.y;
                 }

@@ -1,4 +1,13 @@
 // JavaScript source code
+
+const depthLookup = {
+    floor: 0,
+    npc: 1,
+    ceiling: 10000,
+    actions: 20000,
+    actionIcons: 21000
+};
+
 class BaseScene extends Phaser.Scene {
     constructor(id) {
         super(id);
@@ -8,6 +17,8 @@ class BaseScene extends Phaser.Scene {
         this.turnSystem = new TurnSystem(this);
         this.playfield = new Playfield(this);
         this.camerafocus = new Vector2(8 * 32, 8 * 32);
+        this.windowsize = new Vector2(0, 0);
+        this.pixelsize = 1;
     }
     preload() {
         
@@ -20,6 +31,10 @@ class BaseScene extends Phaser.Scene {
         this.load.image('brick-main', 'img/brick-main.png');
         this.load.image('brick-left', 'img/brick-left.png');
         this.load.image('brick-right', 'img/brick-right.png');
+        this.load.image('unit-archer', 'img/unit-archer.png');
+        this.load.image('select', 'img/select.png');
+        this.load.image('action', 'img/action.png');
+        this.load.image('action-no-icon', 'img/action-no-icon.png');
     }
     create() {
         this.level.make();
@@ -42,9 +57,17 @@ class BaseScene extends Phaser.Scene {
         this.tileManager.registerAll();
         this.level.layer('deco').obj.setDepth(depthLookup.ceiling);
 
+        this.map.filterObjects('units', function (object) {
+            if (object.type === 'unit-player') {
+                this.playfield.units.push(new Unit(this, this.tileManager.getAutoTile(object.x / 16, object.y / 16), {name: object.name}));
+            }
+        }, this);
+
         this.scale.on('resize', this.resize, this);
         
         const pixelSize = Math.ceil(Math.min(this.game.canvas.width / 480, this.game.canvas.height / 270)) * window.devicePixelRatio;
+        this.windowsize.set(this.game.canvas.width / pixelSize, this.game.canvas.height / pixelSize);
+        this.pixelsize = pixelSize;
         this.cameras.main.zoom = pixelSize;
     }
     update(time, delta) {
@@ -52,6 +75,7 @@ class BaseScene extends Phaser.Scene {
         this.touchContext.update();
         this.tileManager.refreshAllInQueue();
         this.cameras.main.centerOn(Math.round(this.camerafocus.x), Math.round(this.camerafocus.y));
+        this.playfield.updateUnits();
     }
     resize(gameSize, baseSize, displaySize, resolution) {
         const width = displaySize.width;
@@ -60,6 +84,8 @@ class BaseScene extends Phaser.Scene {
         const pixelSize = Math.ceil(Math.min(width / 480, height / 270)) * window.devicePixelRatio;
 
         this.cameras.resize(width, height);
+        this.windowsize.set(width / pixelSize, height / pixelSize);
+        this.pixelsize = pixelSize;
         this.cameras.main.zoom = pixelSize;
     }
 }

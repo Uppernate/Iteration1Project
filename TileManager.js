@@ -6,12 +6,6 @@ function ConstructMatrix(recipe, definitions) {
     return matrix;
 }
 
-const depthLookup = {
-    floor: 0,
-    npc: 1,
-    ceiling: 10000
-};
-
 class AutoTileData {
     constructor(tile, tileWall, tileDeco, x, y, parent) {
         this.tileFloor = tile;
@@ -117,7 +111,18 @@ class AutoTileData {
     }
     // Changes the look of a tile from a particular layer
     changeLook(layername, index) {
-        this.parent.spawnTile(this.x, this.y, this.parent.parent.level.layer(layername).obj, index);
+        const tile = this.parent.spawnTile(this.x, this.y, this.parent.parent.level.layer(layername).obj, index);
+        switch (layername) {
+            case 'deco':
+                this.tileDeco = tile;
+                break;
+            case 'wall':
+                this.tileWall = tile;
+                break;
+            case 'main':
+                this.tileMain = tile;
+                break;
+        }
     }
     // Removes a tile from a particular layer
     removeLook(layername) {
@@ -253,7 +258,15 @@ class TileManager {
     }
     // Change the look of the tile found in the layer and coordinates
     spawnTile(x, y, layer, look) {
-        layer.putTileAt(new Phaser.Tilemaps.Tile(layer, look, x, y, 16, 16, 16, 16), x, y);
+        const tileTemp = new Phaser.Tilemaps.Tile(layer, look, x, y, 16, 16, 16, 16);
+        const tile = layer.putTileAt(tileTemp, x, y);
+
+        tile.propdata = {}; // Make space for properties
+        let properties = Object.entries(tile.tileset.tileProperties[tile.index]); // Get properties of correct index
+        properties.forEach(function (p) { tile.propdata[p[0]] = p[1]; }); // Insert properties into tile
+
+        return tile;
+        //return tile;
     }
     // Create a specific sprite within tile coordinates
     spawnSpriteTile(x, y, name, depth, source) {

@@ -23,27 +23,75 @@ class Touch {
 }
 
 class ContextNone {
-    constructor(parent) {
+    constructor(maincontext) {
         this.name = 'None';
-        this.parent = parent;
+        this.parent = maincontext;
     }
     onPress(touch) {
-        console.log('User pressed');
+        // Clear previous selection
+        if (exists(this.parent.storage.previousTile)) {
+            this.parent.storage.previousTile.refresh();
+            if (this.parent.storage.previousTile.unit) {
+                this.parent.storage.previousTile.unit.hideActions();
+            }
+        }
+        // Transform touch position into tile coordinates
+        const tilepos = new Vector2(touch.x, touch.y);
+        tilepos.div(this.parent.parent.cameras.main.zoom);
+        tilepos.sub(this.parent.parent.windowsize.copy().div(2));
+        tilepos.add(this.parent.parent.camerafocus);
+        tilepos.div(16);
+        // Fetch Auto Tile
+        const tile = this.parent.parent.tileManager.getAutoTile(Math.floor(tilepos.x), Math.floor(tilepos.y));
+        // Only do something when tile is a floor tile
+        if (tile && !tile.info.wallType) {
+            this.parent.storage.previousTile = tile; // Save for refresh
+            tile.addSprite('select', 1); // Display selection sprite
+            if (tile.tileDeco) {
+                tile.tileDeco.alpha = 0.5; // Make decoration over this tile transparent
+            }
+            if (tile.unit) { // There's a unit on this tile
+                tile.unit.revealActions();
+                this.parent.storage.previousUnit = tile.unit;
+                this.parent.switchState('unit');
+            }
+        }
     }
     onHoldEnd(touch) {
-        console.log('User held');
+        this.onPress(touch);
     }
     onHolding(touch) {
-        console.log('Holding...');
     }
     onSwipeEnd(touch) {
-        console.log('User swiped');
     }
     onSwiping(touch) {
-        console.log('Swiping...');
         this.parent.parent.camerafocus.sub(touch.swipeVector.div(this.parent.parent.cameras.main.zoom));
         touch.startPosition.set(touch.position);
         touch.swipeVector.set(0, 0);
+    }
+}
+
+class ContextOnUnit extends ContextNone {
+    constructor(maincontext) {
+        super(maincontext);
+        this.name = 'OnUnit';
+        const unit = this.parent.storage.previousUnit;
+        unit.actions.forEach(function (action) {
+            action.circle.setInteractive();
+            action.circle.on('pointerdown', function (pointer, x, y, event) {
+                this.parent.storage.obj = action;
+            }, this);
+        }, this);
+    }
+    onPress(touch) {
+        if (exists(this.parent.storage.obj)) {
+            this.parent.storage.obj = undefined;
+        }
+        else {
+            this.parent.storage.previousTile.refresh();
+            this.parent.storage.previousUnit.hideActions();
+            this.parent.switchState('none');
+        }
     }
 }
 
@@ -51,6 +99,7 @@ class TouchContext {
     constructor(source) {
         this.parent = source;
         this.touches = [];
+        this.storage = {};
         this.state = new ContextNone(this);
         this.parent.input.on('pointerdown', this.handleStart, this);
         this.parent.input.on('pointerup', this.handleEnd, this);
@@ -95,5 +144,15 @@ class TouchContext {
     // Calling for each on all touches to execute touchUpdate
     update() {
         this.touches.forEach(this.touchUpdate, this);
+    }
+    switchState(name) {
+        switch (name) {
+            case 'none':
+                this.state = new ContextNone(this);
+                break;
+            case 'unit':
+                this.state = new ContextOnUnit(this);
+                break;
+        }
     }
 }

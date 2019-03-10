@@ -272,7 +272,6 @@
 </data>
  </layer>
  <objectgroup id="19" name="units">
-  <object id="2" name="Archer" type="unit-player" x="176" y="256" width="16" height="16"/>
-  <object id="3" name="Archer" type="unit-player" x="176" y="240" width="16" height="16"/>
+  <object id="3" name="archer" type="unit-player" x="176" y="240" width="16" height="16"/>
  </objectgroup>
 </map>

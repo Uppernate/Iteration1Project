@@ -44,19 +44,8 @@
          "objects":[
                 {
                  "height":16,
-                 "id":2,
-                 "name":"Archer",
-                 "rotation":0,
-                 "type":"unit-player",
-                 "visible":true,
-                 "width":16,
-                 "x":176,
-                 "y":256
-                }, 
-                {
-                 "height":16,
                  "id":3,
-                 "name":"Archer",
+                 "name":"archer",
                  "rotation":0,
                  "type":"unit-player",
                  "visible":true,
