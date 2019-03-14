@@ -83,8 +83,8 @@
                  "type":"unit-player",
                  "visible":true,
                  "width":16,
-                 "x":128,
-                 "y":256
+                 "x":160,
+                 "y":304
                 }],
          "opacity":1,
          "type":"objectgroup",

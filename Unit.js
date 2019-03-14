@@ -10,7 +10,8 @@ class Unit {
         // No actions yet
 
         this.actions = [
-            new Action(this),
+            new ActionDash(this),
+            new ActionArrowShoot(this),
             new ActionMove(this)
         ];
 
@@ -25,6 +26,12 @@ class Unit {
         this.sprite.x = this.position.x * 16 + 8;
         this.sprite.y = this.position.y * 16 + 8 - this.sprite.height / 2;
         this.sprite.setDepth(this.sprite.y + this.sprite.height / 2);
+    }
+    cancelAction() {
+        if (this.chosenAction) {
+            this.chosenAction.cancel();
+        }
+        this.chosenAction = undefined;
     }
     revealActions() {
         let angle = -Math.PI;

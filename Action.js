@@ -50,6 +50,7 @@ class Action {
         console.log('no icon action initialised');
         this.unit.hideActions();
         this.unit.position.refresh();
+        this.unit.cancelAction();
         this.unit.scene.touchContext.storage.obj = undefined;
         this.unit.chosenAction = this;
     }
@@ -113,6 +114,10 @@ class Action {
         }
         return confirmed;
     }
+    cancel() {
+        this.unit.chosenAction = undefined;
+        this.tile = undefined;
+    }
 }
 
 class ActionMove extends Action {
@@ -128,22 +133,88 @@ class ActionMove extends Action {
         super.displayUpdate();
         if (this.unit.chosenAction === this) {
             this.selectionSprites[0].alpha = 1;
-            this.selectionSprites[0].x = this.tile.tile.x * 16 + 8;
-            this.selectionSprites[0].y = this.tile.tile.y * 16 + 8;
+            this.selectionSprites[0].x = this.tile.x * 16 + 8;
+            this.selectionSprites[0].y = this.tile.y * 16 + 8;
         }
         else {
             this.selectionSprites[0].alpha = 0;
         }
     }
     onPress() {
-        console.log('move action initialised');
+        this.unit.cancelAction();
         this.unit.scene.touchContext.storage.selectableTiles = this.getTilesInRange(this.range);
         this.unit.scene.touchContext.storage.currentAction = this;
-        this.unit.chosenAction = undefined;
     }
     onTileSelected(tile) {
-        this.tile = tile;
+        this.tile = tile.tile;
+        this.tile.movetarget = this;
         this.unit.chosenAction = this;
-        console.log('move action finalised');
+    }
+    cancel() {
+        if (this.tile) {
+            this.tile.movetarget = undefined;
+        }
+        super.cancel();
+    }
+}
+
+class ActionDash extends ActionMove {
+    constructor(unit, config) {
+        config = config || {};
+        config.icon = config.icon || 'dash';
+        config.phase = config.phase || 'dash';
+        config.range = config.range || 1.8;
+        super(unit, config);
+    }
+}
+
+class ActionArrowShoot extends ActionMove {
+    constructor(unit, config) {
+        config = config || {};
+        config.icon = config.icon || 'arrowshoot';
+        config.phase = config.phase || 'arrowshoot';
+        config.range = config.range || 6.3;
+        super(unit, config);
+    }
+    raycastTileCheck(manager, start, end, distance) {
+        let result = true;
+        if (Math.abs(distance.x) > Math.abs(distance.y)) {
+            let step = Math.abs(distance.y / distance.x);
+            for (let i = 1; i <= Math.abs(distance.x) ; i++) {
+                const tile = manager.getAutoTile(start.x + i * Math.sign(distance.x), Math.round(start.y + i * Math.sign(distance.y) * step));
+                if (tile && tile.info.wallType) {
+                    result = false;
+                    break;
+                }
+            }
+        }
+        else {
+            let step = Math.abs(distance.x / distance.y);
+            for (let i = 1; i < Math.abs(distance.y) ; i++) {
+                const tile = manager.getAutoTile(Math.round(start.x + i * Math.sign(distance.x) * step), start.y + i * Math.sign(distance.y));
+                if (tile && tile.info.wallType) {
+                    result = false;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    getTilesInRange(range) {
+        const confirmed = [];
+
+        const thisTile = this.unit.position;
+        const tileManager = this.unit.scene.tileManager;
+
+        tileManager.everyAutoTile(function (autotile) {
+            if (autotile.info.wallType) return false;
+            if (autotile === thisTile) return false;
+            const distance = new Vector2(autotile).sub(thisTile);
+            if (distance.magnitude <= range) {
+                if (this.raycastTileCheck(tileManager, thisTile, autotile, distance)) 
+                    confirmed.push({ tile: autotile });
+            }
+        }, this);
+        return confirmed;
     }
 }
