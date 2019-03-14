@@ -11,7 +11,7 @@ class Unit {
 
         this.actions = [
             new Action(this),
-            new Action(this)
+            new ActionMove(this)
         ];
 
         /// Import configs into this class

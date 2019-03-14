@@ -78,18 +78,55 @@ class ContextOnUnit extends ContextNone {
         const unit = this.parent.storage.previousUnit;
         unit.actions.forEach(function (action) {
             action.circle.setInteractive();
+            action.circle.removeAllListeners();
             action.circle.on('pointerdown', function (pointer, x, y, event) {
                 this.parent.storage.obj = action;
+                action.onPress();
+                unit.hideActions();
             }, this);
         }, this);
     }
     onPress(touch) {
         if (exists(this.parent.storage.obj)) {
             this.parent.storage.obj = undefined;
+            this.parent.switchState('select_tiles');
         }
         else {
             this.parent.storage.previousTile.refresh();
             this.parent.storage.previousUnit.hideActions();
+            this.parent.switchState('none');
+        }
+    }
+}
+
+class ContextSelectTiles extends ContextNone {
+    constructor(maincontext) {
+        super(maincontext);
+        this.name = 'SelectTiles';
+        const tiles = this.parent.storage.selectableTiles;
+        tiles.forEach(function (t) {
+            t.tile.addSprite('tile-selectable', depthLookup.tileOverlays);
+            if (t.tile.tileDeco) 
+                t.tile.tileDeco.alpha = 0.5; // Make decoration over this tile transparent
+        });
+    }
+    onPress(touch) {
+        // Transform touch position into tile coordinates
+        const tilepos = new Vector2(touch.x, touch.y);
+        tilepos.div(this.parent.parent.cameras.main.zoom);
+        tilepos.sub(this.parent.parent.windowsize.copy().div(2));
+        tilepos.add(this.parent.parent.camerafocus);
+        tilepos.div(16);
+        // Fetch Auto Tile
+        const tile = this.parent.parent.tileManager.getAutoTile(Math.floor(tilepos.x), Math.floor(tilepos.y));
+        const selectable = this.parent.storage.selectableTiles.find(function (a) { return a.tile === tile });
+        if (selectable) {
+            this.parent.storage.selectableTiles.forEach(function (a) { a.tile.refresh(); });
+            this.parent.storage.currentAction.onTileSelected(selectable);
+            this.parent.switchState('none');
+        }
+        else {
+            this.parent.storage.selectableTiles.forEach(function (a) { a.tile.refresh(); });
             this.parent.switchState('none');
         }
     }
@@ -153,6 +190,8 @@ class TouchContext {
             case 'unit':
                 this.state = new ContextOnUnit(this);
                 break;
+            case 'select_tiles':
+                this.state = new ContextSelectTiles(this);
         }
     }
 }

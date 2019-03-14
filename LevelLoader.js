@@ -7,6 +7,11 @@ class LevelLoader {
         this._tilesets = [];
         this.layers = [];
     }
+    loadImages(arr) {
+        arr.forEach(function (entry) {
+            this.scene.load.image(entry, `img/${entry}.png`);
+        }, this);
+    }
     set source(t) {
         this._source = t;
         this.scene.load.tilemapTiledJSON(this.key, this._source);

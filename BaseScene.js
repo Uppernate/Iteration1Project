@@ -4,6 +4,7 @@ const depthLookup = {
     floor: 0,
     npc: 1,
     ceiling: 10000,
+    tileOverlays: 15000,
     actions: 20000,
     actionIcons: 21000
 };
@@ -24,17 +25,23 @@ class BaseScene extends Phaser.Scene {
         
         this.level.key = 'level';
         this.level.source = 'levels/level1.json';
+
         this.level.newTileset('main', 'img/tiles.png');
+
         this.level.newDynamicLayer('main', ['main']);
         this.level.newDynamicLayer('wall', ['main']);
         this.level.newDynamicLayer('deco', ['main']);
-        this.load.image('brick-main', 'img/brick-main.png');
-        this.load.image('brick-left', 'img/brick-left.png');
-        this.load.image('brick-right', 'img/brick-right.png');
-        this.load.image('unit-archer', 'img/unit-archer.png');
-        this.load.image('select', 'img/select.png');
-        this.load.image('action', 'img/action.png');
-        this.load.image('action-no-icon', 'img/action-no-icon.png');
+
+        this.level.loadImages([
+            'brick-main', 'brick-left', 'brick-right',
+            'unit-archer',
+            'select', 'tile-selectable',
+            'select-move', 'action-move',
+            'select-dash', 'action-dash',
+            'select-arrowshoot', 'action-arrowshoot',
+            'action-no-icon',
+            'action'
+        ]);
     }
     create() {
         this.level.make();
