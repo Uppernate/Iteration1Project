@@ -5,8 +5,13 @@ const depthLookup = {
     npc: 1,
     ceiling: 10000,
     tileOverlays: 15000,
+    barsBG: 18000,
+    barsFill: 19000,
+    barsMark: 19500,
+    barsChange: 19750,
     actions: 20000,
-    actionIcons: 21000
+    actionIcons: 21000,
+    UI: 30000,
 };
 
 class BaseScene extends Phaser.Scene {
@@ -35,12 +40,18 @@ class BaseScene extends Phaser.Scene {
         this.level.loadImages([
             'brick-main', 'brick-left', 'brick-right',
             'unit-archer',
+            'unit-knight',
+            'unit-skeleton',
             'select', 'tile-selectable',
             'select-move', 'action-move',
             'select-dash', 'action-dash',
+            'select-swing-sword', 'action-swing-sword',
             'select-arrowshoot', 'action-arrowshoot',
             'action-no-icon',
-            'action'
+            'action',
+            'play-turn',
+
+            'bars-background', 'bars-health', 'bars-stamina', 'bars-redmark', 'bars-bluemark', 'bars-change'
         ]);
     }
     create() {
@@ -65,8 +76,17 @@ class BaseScene extends Phaser.Scene {
         this.level.layer('deco').obj.setDepth(depthLookup.ceiling);
 
         this.map.filterObjects('units', function (object) {
+            const tile = this.tileManager.getAutoTile(object.x / 16, object.y / 16);
             if (object.type === 'unit-player') {
-                this.playfield.units.push(new Unit(this, this.tileManager.getAutoTile(object.x / 16, object.y / 16), {name: object.name}));
+                switch (object.name) {
+                    case 'archer':
+                        this.playfield.units.push(new Unit(this, tile, { name: object.name }));
+                        break;
+                    case 'knight':
+                        this.playfield.units.push(new UnitKnight(this, tile));
+                        break;
+
+                }
             }
         }, this);
 
@@ -76,6 +96,9 @@ class BaseScene extends Phaser.Scene {
         this.windowsize.set(this.game.canvas.width / pixelSize, this.game.canvas.height / pixelSize);
         this.pixelsize = pixelSize;
         this.cameras.main.zoom = pixelSize;
+
+        this.playturn = this.physics.add.sprite(this.cameras.main.x + this.windowsize.x / 2, this.cameras.main.y + this.windowsize.y / 2, 'play-turn');
+        this.playturn.depth = depthLookup.UI;
     }
     update(time, delta) {
         //this.player.update();
@@ -83,6 +106,9 @@ class BaseScene extends Phaser.Scene {
         this.tileManager.refreshAllInQueue();
         this.cameras.main.centerOn(Math.round(this.camerafocus.x), Math.round(this.camerafocus.y));
         this.playfield.updateUnits();
+
+        this.playturn.x = Math.round(this.camerafocus.x) + this.windowsize.x / 2 - this.playturn.width / 2;
+        this.playturn.y = Math.round(this.camerafocus.y) + this.windowsize.y / 2 - this.playturn.height / 2;
     }
     resize(gameSize, baseSize, displaySize, resolution) {
         const width = displaySize.width;

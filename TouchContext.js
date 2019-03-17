@@ -50,7 +50,7 @@ class ContextNone {
             if (tile.tileDeco) {
                 tile.tileDeco.alpha = 0.5; // Make decoration over this tile transparent
             }
-            if (tile.unit) { // There's a unit on this tile
+            if (tile.unit && tile.unit.team === 'player') { // There's a player unit on this tile
                 tile.unit.revealActions();
                 this.parent.storage.previousUnit = tile.unit;
                 this.parent.switchState('unit');
@@ -77,8 +77,11 @@ class ContextOnUnit extends ContextNone {
         this.name = 'OnUnit';
         const unit = this.parent.storage.previousUnit;
         unit.actions.forEach(function (action) {
+            // Enable this UI to be interactive
             action.circle.setInteractive();
+            // Remove all current events on this UI
             action.circle.removeAllListeners();
+            // Listen to event with function
             action.circle.on('pointerdown', function (pointer, x, y, event) {
                 this.parent.storage.obj = action;
                 action.onPress();
@@ -103,6 +106,7 @@ class ContextSelectTiles extends ContextNone {
     constructor(maincontext) {
         super(maincontext);
         this.name = 'SelectTiles';
+        // Fetch the array of all tiles needing to be selected
         const tiles = this.parent.storage.selectableTiles;
         tiles.forEach(function (t) {
             t.tile.addSprite('tile-selectable', depthLookup.tileOverlays);
@@ -119,14 +123,23 @@ class ContextSelectTiles extends ContextNone {
         tilepos.div(16);
         // Fetch Auto Tile
         const tile = this.parent.parent.tileManager.getAutoTile(Math.floor(tilepos.x), Math.floor(tilepos.y));
+        // Find the autotile inside stored array of selectable tiles
         const selectable = this.parent.storage.selectableTiles.find(function (a) { return a.tile === tile });
         if (selectable) {
+            // Clear the look of all selected tiles
             this.parent.storage.selectableTiles.forEach(function (a) { a.tile.refresh(); });
-            this.parent.storage.currentAction.onTileSelected(selectable);
-            this.parent.switchState('none');
+            // Call action function
+            const event = {switchTo: 'none'};
+            this.parent.storage.currentAction.onTileSelected(selectable, event);
+            // Go back to normal Context state
+            if (event.switchTo) {
+                this.parent.switchState(event.switchTo);
+            }
         }
         else {
+            // Clear the look of all selected tiles
             this.parent.storage.selectableTiles.forEach(function (a) { a.tile.refresh(); });
+            // Go back to normal Context state
             this.parent.switchState('none');
         }
     }

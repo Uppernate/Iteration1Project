@@ -21,9 +21,9 @@ class Counter {
         return this.rawvalue;
     }
     get isFull() {
-        return this.current == this.max;
+        return this.value == this.max;
     }
     get isEmpty() {
-        return this.current == this.min;
+        return this.value == this.min;
     }
 }
