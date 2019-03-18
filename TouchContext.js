@@ -218,8 +218,10 @@ class TouchContext {
                 break;
             case 'select_tiles':
                 this.state = new ContextSelectTiles(this);
+                break;
             case 'advancing':
                 this.state = new ContextAdvancingPlay(this);
+                break;
         }
     }
 }
