@@ -45,6 +45,7 @@ class BaseScene extends Phaser.Scene {
             'select', 'tile-selectable',
             'select-move', 'action-move',
             'select-dash', 'action-dash',
+            'select-stab', 'action-stab',
             'select-swing-sword', 'action-swing-sword',
             'select-arrowshoot', 'action-arrowshoot',
             'action-no-icon',
@@ -88,6 +89,13 @@ class BaseScene extends Phaser.Scene {
 
                 }
             }
+            if (object.type === 'unit-enemy') {
+                switch (object.name) {
+                    case 'skeleton':
+                        this.playfield.units.push(new UnitSkeleton(this, tile));
+                        break;
+                }
+            }
         }, this);
 
         this.scale.on('resize', this.resize, this);
@@ -99,6 +107,13 @@ class BaseScene extends Phaser.Scene {
 
         this.playturn = this.physics.add.sprite(this.cameras.main.x + this.windowsize.x / 2, this.cameras.main.y + this.windowsize.y / 2, 'play-turn');
         this.playturn.depth = depthLookup.UI;
+        this.playturn.setInteractive();
+
+        this.playturn.on('pointerdown', function () {
+            this.playfield.prepareUnits();
+            this.touchContext.switchState('advancing');
+            this.playturn.alpha = 0.5;
+        }, this);
     }
     update(time, delta) {
         //this.player.update();
@@ -109,6 +124,13 @@ class BaseScene extends Phaser.Scene {
 
         this.playturn.x = Math.round(this.camerafocus.x) + this.windowsize.x / 2 - this.playturn.width / 2;
         this.playturn.y = Math.round(this.camerafocus.y) + this.windowsize.y / 2 - this.playturn.height / 2;
+
+        if (!this.playfield.advancing) {
+            this.playturn.alpha = 1;
+            if (this.touchContext.state.name == "Advancing") {
+                this.touchContext.switchState('none');
+            }
+        }
     }
     resize(gameSize, baseSize, displaySize, resolution) {
         const width = displaySize.width;

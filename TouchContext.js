@@ -71,6 +71,17 @@ class ContextNone {
     }
 }
 
+class ContextAdvancingPlay extends ContextNone {
+    constructor(maincontext) {
+        super(maincontext);
+        this.name = 'Advancing';
+        this.parent = maincontext;
+    }
+    onPress(touch) {
+
+    }
+}
+
 class ContextOnUnit extends ContextNone {
     constructor(maincontext) {
         super(maincontext);
@@ -83,8 +94,10 @@ class ContextOnUnit extends ContextNone {
             action.circle.removeAllListeners();
             // Listen to event with function
             action.circle.on('pointerdown', function (pointer, x, y, event) {
-                this.parent.storage.obj = action;
-                action.onPress();
+                if (unit.stamina.value >= action.cost) {
+                    this.parent.storage.obj = action;
+                    action.onPress();
+                }
                 unit.hideActions();
             }, this);
         }, this);
@@ -205,6 +218,8 @@ class TouchContext {
                 break;
             case 'select_tiles':
                 this.state = new ContextSelectTiles(this);
+            case 'advancing':
+                this.state = new ContextAdvancingPlay(this);
         }
     }
 }

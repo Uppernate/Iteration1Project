@@ -50,6 +50,12 @@ class Action {
         else {
             this.circleicon.setScale(this.scale.x, this.scale.y);
         }
+        if (this.unit.stamina.value < this.cost) {
+            this.circleicon.alpha = 0.5;
+        }
+        else {
+            this.circleicon.alpha = 1;
+        }
     }
     onPress() {
         console.log('no icon action initialised');
@@ -139,18 +145,24 @@ class Action {
         this.unit.chosenAction = undefined;
         this.tile = undefined;
     }
+    advance() {
+        console.log('no-icon action advanced');
+    }
 }
 
 class ActionMove extends Action {
     constructor(unit, config) {
-        config = config || {};
-        config.icon = config.icon || 'move';
-        config.phase = config.phase || 'move';
-        config.range = config.range || 5;
-        config.selectableCount = config.selectableCount || 1;
-        config.cost = config.cost || 0.5;
-        config.costPerDistance = config.costPerDistance || 0.5;
-        super(unit, config);
+        const defaultConfig = {
+            icon: 'move',
+            phase: 'move',
+            range: 5,
+            cost: 0.5,
+            costPerDistance: 0.5,
+            selectableCount: 1
+        }
+        const entries = Object.entries(config || {});
+        entries.forEach(function (entry) { defaultConfig[entry[0]] = entry[1] });
+        super(unit, defaultConfig);
     }
     displayUpdate() {
         super.displayUpdate();
@@ -165,7 +177,7 @@ class ActionMove extends Action {
     }
     onPress() {
         this.unit.cancelAction();
-        this.unit.scene.touchContext.storage.selectableTiles = this.getTilesInRange(Math.min(this.range, this.unit.stamina.value));
+        this.unit.scene.touchContext.storage.selectableTiles = this.getTilesInRange(Math.min(this.range, this.unit.stamina.value / this.costPerDistance));
         this.unit.scene.touchContext.storage.currentAction = this;
         this.unit.barsAutoHide.fill();
     }
@@ -182,29 +194,45 @@ class ActionMove extends Action {
         }
         super.cancel();
     }
+    advance() {
+        this.unit.position.unit = undefined;
+        this.unit.position = this.tile;
+        this.unit.stamina.value -= this.cost;
+        this.unit.cancelAction();
+        this.unit.position.unit = this.unit;
+        this.cost = this.costPerDistance || this.cost;
+    }
 }
 
 class ActionDash extends ActionMove {
     constructor(unit, config) {
-        config = config || {};
-        config.icon = config.icon || 'dash';
-        config.phase = config.phase || 'dash';
-        config.range = config.range || 1.8;
-        config.cost = config.cost || 2.2;
-        config.costPerDistance = config.costPerDistance || 2;
-        super(unit, config);
+        const defaultConfig = {
+            icon: 'dash',
+            phase: 'dash',
+            range: 1.8,
+            cost: 2,
+            costPerDistance: 2,
+            selectableCount: 1
+        }
+        const entries = Object.entries(config || {});
+        entries.forEach(function (entry) { defaultConfig[entry[0]] = entry[1] });
+        super(unit, defaultConfig);
     }
 }
 
 class ActionSwingSword extends ActionMove {
     constructor(unit, config) {
-        config = config || {};
-        config.icon = config.icon || 'swing-sword';
-        config.phase = config.phase || 'swing-sword';
-        config.range = config.range || 1;
-        config.cost = config.cost || 1.5;
-        config.selectableCount = config.selectableCount || 2;
-        super(unit, config);
+        const defaultConfig = {
+            icon: 'swing-sword',
+            phase: 'attack',
+            range: 1,
+            damage: 1,
+            cost: 1.5,
+            selectableCount: 2
+        }
+        const entries = Object.entries(config || {});
+        entries.forEach(function (entry) { defaultConfig[entry[0]] = entry[1] });
+        super(unit, defaultConfig);
     }
     displayUpdate() {
         super.displayUpdate();
@@ -284,16 +312,92 @@ class ActionSwingSword extends ActionMove {
                 break;
         }
     }
+    advance() {
+        if (this.tile.unit) 
+            this.tile.unit.lastDamageTaken += this.damage;
+        if (this.tile2.unit)
+            this.tile2.unit.lastDamageTaken += this.damage;
+        
+        this.unit.stamina.value -= this.cost;
+        this.unit.cancelAction();
+    }
+}
+
+class ActionStab extends ActionSwingSword {
+    constructor(unit, config) {
+        const defaultConfig = {
+            icon: 'stab',
+            phase: 'attack',
+            range: 1,
+            damage: 1,
+            cost: 1.2,
+            selectableCount: 1
+        }
+        const entries = Object.entries(config || {});
+        entries.forEach(function (entry) { defaultConfig[entry[0]] = entry[1] });
+
+        super(unit, defaultConfig);
+    }
+    onPress() {
+        this.unit.cancelAction();
+        this.unit.scene.touchContext.storage.selectableTiles = this.getTilesInRange(this.range);
+        this.unit.scene.touchContext.storage.currentAction = this;
+        this.unit.barsAutoHide.fill();
+    }
+    onTileSelected(tile, event) {
+        this.tile = tile.tile;
+        this.unit.barsAutoHide.fill();
+        this.unit.chosenAction = this;
+    }
+    displayUpdate() {
+        this.scale.lerp(this.targetScale, 0.2);
+        this.offset.lerp(this.targetOffset, 0.2);
+        this.circleicon.x = this.circle.x = this.unit.position.x * 16 + 8 + this.offset.x;
+        this.circleicon.y = this.circle.y = this.unit.position.y * 16 + 8 + this.offset.y;
+        this.circle.setScale(this.scale.x, this.scale.y);
+        if (this.unit.chosenAction === this) {
+            this.circleicon.setScale(1, 1);
+        }
+        else {
+            this.circleicon.setScale(this.scale.x, this.scale.y);
+        }
+        if (this.unit.chosenAction === this) {
+            this.selectionSprites[0].alpha = 1;
+            this.selectionSprites[0].x = this.tile.x * 16 + 8;
+            this.selectionSprites[0].y = this.tile.y * 16 + 8;
+        }
+        else {
+            this.selectionSprites[0].alpha = 0;
+        }
+    }
+    advance() {
+        if (this.tile.unit)
+            this.tile.unit.lastDamageTaken += this.damage;
+        this.unit.stamina.value -= this.cost;
+        this.unit.cancelAction();
+    }
 }
 
 class ActionArrowShoot extends ActionMove {
     constructor(unit, config) {
-        config = config || {};
-        config.icon = config.icon || 'arrowshoot';
-        config.phase = config.phase || 'arrowshoot';
-        config.range = config.range || 6.3;
-        config.cost = config.cost || 1;
-        super(unit, config);
+
+        const defaultConfig = {
+            icon: 'arrowshoot',
+            phase: 'attack',
+            range: 6.3,
+            damage: 0.8,
+            cost: 1,
+            selectableCount: 1
+        }
+        const entries = Object.entries(config || {});
+        entries.forEach(function (entry) { defaultConfig[entry[0]] = entry[1] });
+        super(unit, defaultConfig);
+    }
+    onPress() {
+        this.unit.cancelAction();
+        this.unit.scene.touchContext.storage.selectableTiles = this.getTilesInRange(this.range);
+        this.unit.scene.touchContext.storage.currentAction = this;
+        this.unit.barsAutoHide.fill();
     }
     raycastTileCheck(manager, start, end, distance) {
         let result = true;
@@ -352,5 +456,11 @@ class ActionArrowShoot extends ActionMove {
         this.tile = tile.tile;
         this.unit.chosenAction = this;
         this.unit.barsAutoHide.fill();
+    }
+    advance() {
+        if (this.tile.unit)
+            this.tile.unit.lastDamageTaken += this.damage;
+        this.unit.stamina.value -= this.cost;
+        this.unit.cancelAction();
     }
 }

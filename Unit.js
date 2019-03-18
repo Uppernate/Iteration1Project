@@ -5,6 +5,7 @@ class Unit {
 
         this.health = new Counter(0, 5, 5);
         this.stamina = new Counter(0, 6, 6);
+        this.staminaRegen = 1;
         this.lastDamageTaken = 0;
         this.position.unit = this;
         this.team = 'player';
@@ -163,6 +164,20 @@ class Unit {
         else {
             this.barSprites.staminaChange.alpha = 0;
         }
+
+        if (this.lastDamageTaken) {
+            this.barSprites.healthChange.alpha = 1 * this.barsGlobalAlpha;
+            this.barSprites.healthChange.setScale(Math.min(this.lastDamageTaken, this.health.value) / this.health.max, 1);
+            this.barSprites.healthChange.x = this.barSprites.health.x + (this.health.value / this.health.max * 8) - (Math.min(this.lastDamageTaken, this.health.value) / this.health.max * 8);
+            this.barSprites.healthChange.y = this.barSprites.health.y;
+        }
+        else {
+            this.barSprites.healthChange.alpha = 0;
+        }
+    }
+    advance() {
+        console.log(`${this.name} has advanced with action ${this.chosenAction.icon}`);
+        this.chosenAction.advance();
     }
 }
 
@@ -172,9 +187,22 @@ class UnitKnight extends Unit {
         config.name = config.name || 'knight';
         super(scene, autotile, config);
         this.actions = [
-            new ActionDash(this, {costPerDistance: 2.4}),
+            new ActionDash(this, {costPerDistance: 2.4, cost: 2.4}),
             new ActionSwingSword(this),
-            new ActionMove(this, {costPerDistance: 1, range: 2.8})
+            new ActionMove(this, {costPerDistance: 1, cost: 1, range: 2.8})
+        ];
+    }
+}
+
+class UnitSkeleton extends Unit {
+    constructor(scene, autotile, config) {
+        config = config || {};
+        config.name = config.name || 'skeleton';
+        config.team = config.team || 'enemy';
+        super(scene, autotile, config);
+        this.actions = [
+            new ActionStab(this),
+            new ActionMove(this, { costPerDistance: 0.8, range: 2.8 })
         ];
     }
 }
