@@ -3,7 +3,7 @@ class Unit {
         this.scene = scene;
         this.position = autotile;
 
-        this.health = new Counter(0, 5, 5);
+        this.health = new Counter(0, 6, 6);
         this.stamina = new Counter(0, 6, 6);
         this.staminaRegen = 2.5;
         this.lastDamageTaken = 0;
