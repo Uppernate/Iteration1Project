@@ -128,6 +128,7 @@ class BaseScene extends Phaser.Scene {
         if (!this.playfield.advancing) {
             this.playturn.alpha = 1;
             if (this.touchContext.state.name == "Advancing") {
+                console.log('back');
                 this.touchContext.switchState('none');
             }
         }
@@ -142,5 +143,8 @@ class BaseScene extends Phaser.Scene {
         this.windowsize.set(width / pixelSize, height / pixelSize);
         this.pixelsize = pixelSize;
         this.cameras.main.zoom = pixelSize;
+    }
+    removeUnit(unit) {
+        this.playfield.units.splice(this.playfield.units.findIndex(function (a) { return a === unit}), 1);
     }
 }

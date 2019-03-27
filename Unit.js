@@ -3,9 +3,9 @@ class Unit {
         this.scene = scene;
         this.position = autotile;
 
-        this.health = new Counter(0, 5, 5);
+        this.health = new Counter(0, 6, 6);
         this.stamina = new Counter(0, 6, 6);
-        this.staminaRegen = 1;
+        this.staminaRegen = 2.5;
         this.lastDamageTaken = 0;
         this.position.unit = this;
         this.team = 'player';
@@ -174,6 +174,22 @@ class Unit {
         else {
             this.barSprites.healthChange.alpha = 0;
         }
+        if (this.health.value - this.lastDamageTaken <= 0) {
+            this.position.unit = undefined;
+            this.barSprites.health.destroy();
+            this.barSprites.stamina.destroy();
+            this.barSprites.bg.destroy();
+            this.barSprites.healthChange.destroy();
+            this.barSprites.staminaChange.destroy();
+            this.barSprites.healthMarks.forEach(function (a) {
+                a.destroy();
+            });
+            this.barSprites.staminaMarks.forEach(function (a) {
+                a.destroy();
+            });
+            this.sprite.destroy();
+            this.scene.removeUnit(this);
+        }
     }
     advance() {
         console.log(`${this.name} has advanced with action ${this.chosenAction.icon}`);
@@ -198,7 +214,7 @@ class UnitSkeleton extends Unit {
     constructor(scene, autotile, config) {
         config = config || {};
         config.name = config.name || 'skeleton';
-        config.team = config.team || 'enemy';
+        config.team = config.team || 'player';
         super(scene, autotile, config);
         this.actions = [
             new ActionStab(this),
