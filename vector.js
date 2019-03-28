@@ -23,7 +23,7 @@ const exists = function(a) {
     return (typeof a !== "undefined");
 }
 
-/*class Vector2 {
+class Vector2 {
     constructor(x, y) {
         this.rawx = 0;
         this.rawy = 0;
@@ -61,10 +61,6 @@ const exists = function(a) {
                 this.rawmagnitude = x.magnitude;
                 this.rawmagnitudeSqr = x.magnitude * x.magnitude;
             }
-        }
-        /*if (this.auto) {
-            this.angle;
-            this.magnitude;
         }
     }
     get x() {
@@ -455,125 +451,6 @@ const exists = function(a) {
     }
     static get down() {
         return new Vector2(0, 1);
-    }
-}*/
-
-class Vector2 {
-    constructor(x, y) {
-        this.values = [0, 0, 0, 0];
-        this.flags = [true, true, false, false];
-
-        if (exists(x) && x instanceof Vector2) {
-            x.values.forEach(function (v, i, a) {
-                this.values[i] = v;
-            }, this);
-            x.flags.forEach(function (v, i, a) {
-                this.flags[i] = v;
-            }, this);
-        }
-        else if (isObject(x)) {
-            this.values[0] = x.x || this.values[0];
-            this.values[1] = x.y || this.values[1];
-        }
-        else if (typeof x === 'number' && typeof y === 'number') {
-            this.values[0] = x;
-            this.values[1] = y;
-        }
-
-    }
-    get x() {
-        if (this.flags[0]) {
-            return this.values[0];
-        }
-        else if (this.flags[2] && this.flags[3]) {
-            this.values[0] = cos(this.values[2]) * this.values[3];
-            this.flags[0] = true;
-            return this.values[0];
-        }
-        else {
-            throw 'Cannot Generate X';
-        }
-    }
-    get y() {
-        if (this.flags[1]) {
-            return this.values[1];
-        }
-        else if (this.flags[2] && this.flags[3]) {
-            this.values[1] = sin(this.values[2]) * this.values[3];
-            this.flags[1] = true;
-            return this.values[1];
-        }
-        else {
-            throw 'Cannot Generate Y';
-        }
-    }
-    get angle() {
-        if (this.flags[2]) {
-            return this.values[2];
-        }
-        else if (this.flags[0] && this.flags[1]) {
-            this.values[2] = atan2(this.values[1], this.values[0]);
-            this.flags[2] = true;
-            return this.values[2];
-        }
-        else {
-            throw 'Cannot Generate Angle';
-        }
-    }
-    get magnitude() {
-        if (this.flags[3]) {
-            return this.values[3];
-        }
-        else if (this.flags[0] && this.flags[1]) {
-            this.values[3] = sqrt(this.values[0] ^ 2 + this.values[1] ^ 2);
-            this.flags[3] = true;
-            return this.values[3];
-        }
-        else {
-            throw 'Cannot Generate Magnitude';
-        }
-    }
-    set x(x) {
-        this.values[0] = x;
-        (this.y);
-        this.flags[0] = true;
-        this.flags[2] = false;
-        this.flags[3] = false;
-    }
-    set y(y) {
-        this.values[1] = y;
-        (this.x);
-        this.flags[1] = true;
-        this.flags[2] = false;
-        this.flags[3] = false;
-    }
-    set angle(a) {
-        this.values[2] = a;
-        if (this.values[2] > pi)
-            this.values[2] = ((this.values[2] + pi) % fullPI) - pi;
-        else if (this.values[2] < -pi)
-            this.values[2] = -(-(this.values[2] - pi) % fullPI) + pi;
-        (this.magnitude);
-        this.flags[2] = true;
-        this.flags[0] = false;
-        this.flags[1] = false;
-    }
-    set magnitude(m) {
-        if (this.flags[0] && this.flags[1]) {
-            (this.magnitude);
-            this.values[0] /= this.values[3];
-            this.values[1] /= this.values[3];
-            this.values[3] = m;
-            this.values[0] *= m;
-            this.values[1] *= m;
-        }
-        else {
-            this.values[3] = m;
-            (this.angle);
-            this.flags[0] = false;
-            this.flags[1] = false;
-        }
-        this.flags[3] = true;
     }
 }
 

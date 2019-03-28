@@ -122,7 +122,7 @@ class ContextSelectTiles extends ContextNone {
         // Fetch the array of all tiles needing to be selected
         const tiles = this.parent.storage.selectableTiles;
         tiles.forEach(function (t) {
-            t.tile.addSprite('tile-selectable', depthLookup.tileOverlays);
+            t.tile.addSprite('tile-selectable', DEPTH.TILE_OVERLAYS);
             if (t.tile.tileDeco) 
                 t.tile.tileDeco.alpha = 0.5; // Make decoration over this tile transparent
         });

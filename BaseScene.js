@@ -1,26 +1,11 @@
-// JavaScript source code
+// Base Scene code
 
-const depthLookup = {
-    floor: 0,
-    npc: 1,
-    ceiling: 10000,
-    tileOverlays: 15000,
-    barsBG: 18000,
-    barsFill: 19000,
-    barsMark: 19500,
-    barsChange: 19750,
-    actions: 20000,
-    actionIcons: 21000,
-    UI: 30000,
-};
-
-class BaseScene extends Phaser.Scene {
+class Scene extends Phaser.Scene {
     constructor(id) {
         super(id);
         this.id = id;
         this.level = new LevelLoader(this);
         this.tileManager = new TileManager(this);
-        this.turnSystem = new TurnSystem(this);
         this.playfield = new Playfield(this);
         this.camerafocus = new Vector2(8 * 32, 8 * 32);
         this.windowsize = new Vector2(0, 0);
@@ -37,23 +22,7 @@ class BaseScene extends Phaser.Scene {
         this.level.newDynamicLayer('wall', ['main']);
         this.level.newDynamicLayer('deco', ['main']);
 
-        this.level.loadImages([
-            'brick-main', 'brick-left', 'brick-right',
-            'unit-archer',
-            'unit-knight',
-            'unit-skeleton',
-            'select', 'tile-selectable',
-            'select-move', 'action-move',
-            'select-dash', 'action-dash',
-            'select-stab', 'action-stab',
-            'select-swing-sword', 'action-swing-sword',
-            'select-arrowshoot', 'action-arrowshoot',
-            'action-no-icon',
-            'action',
-            'play-turn',
-
-            'bars-background', 'bars-health', 'bars-stamina', 'bars-redmark', 'bars-bluemark', 'bars-change'
-        ]);
+        this.level.loadImages(IMAGES);
     }
     create() {
         this.level.make();
@@ -74,7 +43,7 @@ class BaseScene extends Phaser.Scene {
         }, this);
 
         this.tileManager.registerAll();
-        this.level.layer('deco').obj.setDepth(depthLookup.ceiling);
+        this.level.layer('deco').obj.setDepth(DEPTH.CEILING);
 
         this.map.filterObjects('units', function (object) {
             const tile = this.tileManager.getAutoTile(object.x / 16, object.y / 16);
@@ -106,7 +75,7 @@ class BaseScene extends Phaser.Scene {
         this.cameras.main.zoom = pixelSize;
 
         this.playturn = this.physics.add.sprite(this.cameras.main.x + this.windowsize.x / 2, this.cameras.main.y + this.windowsize.y / 2, 'play-turn');
-        this.playturn.depth = depthLookup.UI;
+        this.playturn.depth = DEPTH.UI;
         this.playturn.setInteractive();
 
         this.playturn.on('pointerdown', function () {

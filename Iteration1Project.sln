@@ -4,24 +4,54 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.28010.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{ED7381B9-48BF-43B2-816E-8C92F3795373}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Classes", "Classes", "{5B8FE77E-A853-4531-9656-4DB7FA6BDDCB}"
+	ProjectSection(SolutionItems) = preProject
+		Counter.js = Counter.js
+		vector.js = vector.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Game Classes", "Game Classes", "{122B62F9-F3B2-49D3-99FC-FEA1A326C66B}"
+	ProjectSection(SolutionItems) = preProject
+		BaseAction.js = BaseAction.js
+		BaseBar.js = BaseBar.js
+		BaseContext.js = BaseContext.js
+		BaseScene.js = BaseScene.js
+		BaseUnit.js = BaseUnit.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Managers", "Managers", "{8D635549-AAC8-4B9F-A3C9-6C182AB32C61}"
+	ProjectSection(SolutionItems) = preProject
+		LevelLoader.js = LevelLoader.js
+		Playfield.js = Playfield.js
+		TileManager.js = TileManager.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Site and Phaser", "Site and Phaser", "{9BFD1A07-5BEE-49A4-BA4E-F6A7EADD0FAF}"
 	ProjectSection(SolutionItems) = preProject
 		game.js = game.js
 		index.html = index.html
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Classes", "Classes", "{5B8FE77E-A853-4531-9656-4DB7FA6BDDCB}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Game Class Instances", "Game Class Instances", "{E4D9CAEB-4E35-4CA8-B5E7-3CBBAC9631FC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Actions", "Actions", "{3B8B2804-3570-44F8-869A-8EB657683EF0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Units", "Units", "{7B3AB496-63B2-45B8-B889-9E91789CC5F3}"
 	ProjectSection(SolutionItems) = preProject
-		Action.js = Action.js
-		BaseScene.js = BaseScene.js
-		CollisionHandler.js = CollisionHandler.js
-		Counter.js = Counter.js
-		LevelLoader.js = LevelLoader.js
-		Playfield.js = Playfield.js
-		TileManager.js = TileManager.js
-		TouchContext.js = TouchContext.js
-		TurnSystem.js = TurnSystem.js
-		Unit.js = Unit.js
-		vector.js = vector.js
+		Unit-Archer.js = Unit-Archer.js
+		Unit-Knight.js = Unit-Knight.js
+		Unit-Skeleton.js = Unit-Skeleton.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Contexts", "Contexts", "{B572E77D-DB8C-4D32-BE10-E4A1AD4F63DE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scenes", "Scenes", "{6FAF9F35-9263-4439-BA28-A3CFED96755C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Constants", "Constants", "{CD104F18-E92F-437B-833A-833246FB3CF7}"
+	ProjectSection(SolutionItems) = preProject
+		Depth.js = Depth.js
+		ImageList.js = ImageList.js
 	EndProjectSection
 EndProject
 Global
@@ -30,6 +60,15 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5B8FE77E-A853-4531-9656-4DB7FA6BDDCB} = {ED7381B9-48BF-43B2-816E-8C92F3795373}
+		{122B62F9-F3B2-49D3-99FC-FEA1A326C66B} = {ED7381B9-48BF-43B2-816E-8C92F3795373}
+		{8D635549-AAC8-4B9F-A3C9-6C182AB32C61} = {ED7381B9-48BF-43B2-816E-8C92F3795373}
+		{9BFD1A07-5BEE-49A4-BA4E-F6A7EADD0FAF} = {ED7381B9-48BF-43B2-816E-8C92F3795373}
+		{E4D9CAEB-4E35-4CA8-B5E7-3CBBAC9631FC} = {ED7381B9-48BF-43B2-816E-8C92F3795373}
+		{3B8B2804-3570-44F8-869A-8EB657683EF0} = {E4D9CAEB-4E35-4CA8-B5E7-3CBBAC9631FC}
+		{7B3AB496-63B2-45B8-B889-9E91789CC5F3} = {E4D9CAEB-4E35-4CA8-B5E7-3CBBAC9631FC}
+		{B572E77D-DB8C-4D32-BE10-E4A1AD4F63DE} = {E4D9CAEB-4E35-4CA8-B5E7-3CBBAC9631FC}
+		{6FAF9F35-9263-4439-BA28-A3CFED96755C} = {E4D9CAEB-4E35-4CA8-B5E7-3CBBAC9631FC}
+		{CD104F18-E92F-437B-833A-833246FB3CF7} = {ED7381B9-48BF-43B2-816E-8C92F3795373}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {29FF0AAD-4852-43DB-9474-3AB8660C6066}

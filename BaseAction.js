@@ -29,14 +29,14 @@ class Action {
         for (let i = 0; i < this.selectableCount; i++) {
             this.selectionSprites.push(this.unit.scene.physics.add.sprite(this.unit.position.x, this.unit.position.y, `select-${this.icon}`));
             this.selectionSprites[i].alpha = 0;
-            this.selectionSprites[i].depth = depthLookup.tileOverlays;
+            this.selectionSprites[i].depth = DEPTH.TILE_OVERLAYS;
         }
 
         this.circleicon.x = this.circle.x = this.unit.position.x * 16 + 8;
         this.circleicon.y = this.circle.y = this.unit.position.y * 16 + 8;
         this.circle.setScale(this.scale.x, this.scale.y);
         this.circleicon.setScale(this.scale.x, this.scale.y);
-        this.circleicon.depth = this.circle.depth = depthLookup.actions;
+        this.circleicon.depth = this.circle.depth = DEPTH.ACTIONS;
     }
     displayUpdate() {
         this.scale.lerp(this.targetScale, 0.2);

@@ -9,7 +9,11 @@ class LevelLoader {
     }
     loadImages(arr) {
         arr.forEach(function (entry) {
-            this.scene.load.image(entry, `img/${entry}.png`);
+            switch (entry.type) {
+                case 'image':
+                    this.scene.load.image(entry.name, `img/${entry.name}.png`);
+                    break;
+            }
         }, this);
     }
     set source(t) {
