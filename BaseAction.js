@@ -64,7 +64,6 @@ class Action {
         this.unit.cancelAction();
         this.unit.scene.touchContext.storage.obj = undefined;
         this.unit.chosenAction = this;
-        this.unit.barsAutoHide.fill();
     }
     getNearbyTiles(autotile, manager, g) {
         const closest = [];
@@ -90,7 +89,7 @@ class Action {
                     }
                         // Don't need a check for non-diagonal tiles
                     else
-                        closest.push({ tile:tile, g: g + distance.magnitude });
+                        closest.push({ tile:tile, g: g + distance.magnitude, source: autotile });
                 }
             }
         }
@@ -102,11 +101,21 @@ class Action {
         if (t.tile.movetarget) return false;
         if (t.tile.info.wallType) return false;
         // Find this tile within closed/open lists, if it is found, end the function
-        const insideClosed = this.closed.find(function (a) { return a.tile === t.tile });
-        const insideOpen = this.open.find(function (a) { return a.tile === t.tile });
+        const insideClosed = this.closed.find(function (a) { if (a.tile === t.tile) return a });
+        const insideOpen = this.open.find(function (a) { if (a.tile === t.tile) return a });
         if (insideClosed) return false;
-        if (insideOpen) return false;
+        if (insideOpen) {
+            const distance = new Vector2(insideOpen.tile).sub(t.tile).magnitude;
+            if (this.currentG + distance >= t.g)
+                return false;
+            else {
+                t.g = this.currentG + distance;
+                t.source = this.source;
+                return false;
+            }
+        }
         // Passing all of this allows it to be pushed into the open list
+        t.source = this.source;
         this.open.push(t);
     }
     getTilesInRange(range) {
@@ -120,6 +129,8 @@ class Action {
         const tileManager = this.unit.scene.tileManager;
 
         // Get all nearby tiles, run them through the filter if to add them. Sort the results.
+        this.currentG = 0;
+        this.source = undefined;
         this.getNearbyTiles(thisTile, tileManager, 0).forEach(this.forEachNearbyTile, this);
         open.sort(function (a, b) { return a.g - b.g });
 
@@ -130,6 +141,8 @@ class Action {
                 closed.push(current); 
                 open.splice(0, 1);
                 // Since it is confirmed, this tile can now expand the open list
+                this.currentG = current.g;
+                this.source = current.source;
                 this.getNearbyTiles(current.tile, tileManager, current.g).forEach(this.forEachNearbyTile, this);
             }
             else {
@@ -158,7 +171,8 @@ class ActionMove extends Action {
             range: 5,
             cost: 0.5,
             costPerDistance: 0.5,
-            selectableCount: 1
+            selectableCount: 1,
+            movementSpeed: 1
         }
         const entries = Object.entries(config || {});
         entries.forEach(function (entry) { defaultConfig[entry[0]] = entry[1] });
@@ -179,14 +193,22 @@ class ActionMove extends Action {
         this.unit.cancelAction();
         this.unit.scene.touchContext.storage.selectableTiles = this.getTilesInRange(Math.min(this.range, this.unit.stamina.value / this.costPerDistance));
         this.unit.scene.touchContext.storage.currentAction = this;
-        this.unit.barsAutoHide.fill();
+    }
+    getTilePath(tile) {
+        const path = [];
+        while (tile.source) {
+            path.push(tile);
+            tile = tile.source;
+        }
+        return path;
     }
     onTileSelected(tile) {
         this.tile = tile.tile;
         this.cost = this.costPerDistance * tile.g;
+        this.path = this.getTilePath(tile);
+        console.log(this.path);
         this.tile.movetarget = this;
         this.unit.chosenAction = this;
-        this.unit.barsAutoHide.fill();
     }
     cancel() {
         if (this.tile) {
@@ -293,7 +315,6 @@ class ActionSwingSword extends ActionMove {
         this.unit.scene.touchContext.storage.selectableTiles = this.getTilesInRange(this.range);
         this.unit.scene.touchContext.storage.currentAction = this;
         this.unit.scene.touchContext.storage.stage = 0;
-        this.unit.barsAutoHide.fill();
     }
     onTileSelected(tile, event) {
         switch (this.unit.scene.touchContext.storage.stage) {
@@ -302,13 +323,11 @@ class ActionSwingSword extends ActionMove {
                 this.unit.scene.touchContext.storage.selectableTiles = this.getTilesInRange2(this.range);
                 this.unit.scene.touchContext.storage.stage = 1;
                 event.switchTo = 'select_tiles';
-                this.unit.barsAutoHide.fill();
                 break;
             case 1:
                 this.tile2 = tile.tile;
                 this.unit.chosenAction = this;
                 this.barsGlobalAlpha = 0;
-                this.unit.barsAutoHide.fill();
                 break;
         }
     }
@@ -342,11 +361,9 @@ class ActionStab extends ActionSwingSword {
         this.unit.cancelAction();
         this.unit.scene.touchContext.storage.selectableTiles = this.getTilesInRange(this.range);
         this.unit.scene.touchContext.storage.currentAction = this;
-        this.unit.barsAutoHide.fill();
     }
     onTileSelected(tile, event) {
         this.tile = tile.tile;
-        this.unit.barsAutoHide.fill();
         this.unit.chosenAction = this;
     }
     displayUpdate() {
@@ -397,7 +414,6 @@ class ActionArrowShoot extends ActionMove {
         this.unit.cancelAction();
         this.unit.scene.touchContext.storage.selectableTiles = this.getTilesInRange(this.range);
         this.unit.scene.touchContext.storage.currentAction = this;
-        this.unit.barsAutoHide.fill();
     }
     raycastTileCheck(manager, start, end, distance) {
         let result = true;
@@ -455,7 +471,6 @@ class ActionArrowShoot extends ActionMove {
     onTileSelected(tile) {
         this.tile = tile.tile;
         this.unit.chosenAction = this;
-        this.unit.barsAutoHide.fill();
     }
     advance() {
         if (this.tile.unit)

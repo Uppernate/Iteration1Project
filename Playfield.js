@@ -59,7 +59,10 @@ class Playfield {
                 unit.health.value -= unit.lastDamageTaken;
                 unit.lastDamageTaken = 0;
                 if (!unit.chosenAction) {
-                    unit.stamina.value += unit.staminaRegen;
+                    unit.standStill();
+                }
+                else {
+                    unit.hasAction();
                 }
             }, this);
             this.advancing = true;
